@@ -1,5 +1,11 @@
 # @rhao/request
 
+## 3.3.5
+
+### Patch Changes
+
+- a2fa001: chore: 异常 error 支持通过 cause 获取原始错误信息
+
 ## 3.3.4
 
 ### Patch Changes

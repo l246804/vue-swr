@@ -1,5 +1,13 @@
 # @rhao/request-basic-middleware
 
+## 4.3.2
+
+### Patch Changes
+
+- a2fa001: chore: 异常 error 支持通过 cause 获取原始错误信息
+- Updated dependencies [a2fa001]
+  - @rhao/request@3.3.5
+
 ## 4.3.1
 
 ### Patch Changes
