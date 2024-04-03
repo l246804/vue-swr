@@ -35,7 +35,7 @@ export interface RequestConfigHooks<TData = any, TParams extends unknown[] = unk
   /**
    * 执行 `fetcher()` 错误时触发
    */
-  error: AwaitableFn<[error: Error, context: RequestContext<TData, TParams>], any>
+  error: AwaitableFn<[error: Error & { cause?: any }, context: RequestContext<TData, TParams>], any>
 
   /**
    * 执行 `fetcher()` 后成功或失败后触发，取消执行时不触发

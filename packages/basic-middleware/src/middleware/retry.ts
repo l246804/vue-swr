@@ -17,7 +17,7 @@ export interface RequestRetryOptions {
    * () => true
    * ```
    */
-  allow?: AwaitableFn<[error: Error, key: string, context: RequestContext<any, any[]>], boolean>
+  allow?: AwaitableFn<[error: Error & { cause?: any }, key: string, context: RequestContext<any, any[]>], boolean>
   /**
    * - 重试时间间隔,单位：ms
    * - 默认采用简易的指数退避算法
@@ -61,7 +61,8 @@ export function RequestRetry(initialOptions?: RequestRetryOptions) {
           result.data = data
         }
         catch (err: unknown) {
-          const error = castError(err)
+          const error = castError(err) as Error & { cause?: any }
+          if (error !== err) error.cause = err
           result.error = error
         }
 
@@ -123,6 +124,6 @@ declare module '@rhao/request' {
     /**
      * 重试后触发
      */
-    'retry:fail': Fn<[error: Error, context: RequestContext<TData, TParams>]>
+    'retry:fail': Fn<[error: Error & { cause?: any }, context: RequestContext<TData, TParams>]>
   }
 }

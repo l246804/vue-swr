@@ -30,8 +30,8 @@ export interface BasicRequestHook {
    */
   <TData, TParams extends unknown[] = unknown[]>(
     fetcher: RequestFetcher<TData, TParams>,
-    options?: RequestOptions<TData, TParams>,
-  ): RequestResult<TData, TParams>
+    options?: RequestOptions<Awaited<TData>, TParams>,
+  ): RequestResult<Awaited<TData>, TParams>
 }
 
 /**
@@ -206,7 +206,8 @@ export function createRequestHook(options?: RequestBasicOptions) {
       // 错误处理
       const errorHandler = async (err: unknown) => {
         failedControls.open()
-        const error = castError(err)
+        const error = castError(err) as Error & { cause?: any }
+        if (error !== err) error.cause = err
         await hooks.callHook('error', error, context)
       }
 

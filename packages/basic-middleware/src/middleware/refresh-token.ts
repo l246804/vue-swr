@@ -16,7 +16,7 @@ export interface RequestRefreshTokenOptions {
   /**
    * 验证刷新令牌是否过期
    */
-  expired: AwaitableFn<[error: Error], boolean>
+  expired: AwaitableFn<[error: Error & { cause?: any }], boolean>
   /**
    * 允许刷新令牌时的具体刷新操作
    */
@@ -57,7 +57,8 @@ export function RequestRefreshToken(initialOptions: RequestRefreshTokenOptions) 
           }
           catch (err: unknown) {
           // 请求失败后验证根据当前的错误验证是否是 token 过期导致的
-            const error = castError(err)
+            const error = castError(err) as Error & { cause?: any }
+            if (error !== err) error.cause = err
             const isExpired = await options.expired(error)
             if (!isExpired) return Promise.reject(error)
 
