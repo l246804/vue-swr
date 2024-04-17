@@ -45,34 +45,34 @@ export function RequestRefreshToken(initialOptions: RequestRefreshTokenOptions) 
       // 允许刷新令牌时更改 fetcher
       if (toValue(options.allow, getKey(), ctx)) {
         ctx.fetcher = async (...args) => {
-        // 如果存在正在刷新 token 的请求则等待其结束后再调用
+          // 如果存在正在刷新 token 的请求则等待其结束后再调用
           if (refreshPromiseMap.has(request))
             return Promise.resolve(refreshPromiseMap.get(request)).then(() => fetcher(...args))
 
           try {
-          // 正常调用 fetcher，之后再通过 dataParser 解析数据，验证请求是否失败
+            // 正常调用 fetcher，之后再通过 dataParser 解析数据，验证请求是否失败
             const data = await fetcher(...args)
             await getOptions().dataParser(data)
             return data
-          }
-          catch (err: unknown) {
-          // 请求失败后验证根据当前的错误验证是否是 token 过期导致的
+          } catch (err: unknown) {
+            // 请求失败后验证根据当前的错误验证是否是 token 过期导致的
             const error = castError(err) as Error & { cause?: any }
             if (error !== err) error.cause = err
             const isExpired = await options.expired(error)
             if (!isExpired) return Promise.reject(error)
 
             // 如果是过期导致的则调用注册时传入的 handler 进行处理
-            if (!refreshPromiseMap.has(request)) refreshPromiseMap.set(request, options.handler(ctx))
+            if (!refreshPromiseMap.has(request))
+              refreshPromiseMap.set(request, options.handler(ctx))
 
             return (
               Promise.resolve(refreshPromiseMap.get(request))
-              // 新的请求出错则抛出新请求的错误
-                .then(() => Promise.resolve(fetcher(...args)).catch((e) => Promise.reject(e)))
-              // 异常时抛出初次执行请求时的错误
+                // 新的请求出错则抛出新请求的错误
+                .then(() => !ctx.isCanceled() && Promise.resolve(fetcher(...args)))
+                // 异常时抛出初次执行请求时的错误
                 .catch(() => Promise.reject(error))
                 .finally(() => {
-                // 结束后清空 promise
+                  // 结束后清空 promise
                   refreshPromiseMap.delete(request)
                 })
             )
