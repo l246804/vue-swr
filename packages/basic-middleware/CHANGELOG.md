@@ -1,5 +1,11 @@
 # @rhao/request-basic-middleware
 
+## 4.3.3
+
+### Patch Changes
+
+- 4dc1a08: chore: refreshToken 支持取消二次请求
+
 ## 4.3.2
 
 ### Patch Changes
