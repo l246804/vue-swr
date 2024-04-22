@@ -6,6 +6,11 @@ import { assign, once, pick } from 'lodash-unified'
 
 export interface RequestRefreshTokenOptions {
   /**
+   * 单例模式，设为 `false` 时每个 `useRequest` 将单独处理过期刷新令牌
+   * @default true
+   */
+  singleMode?: boolean
+  /**
    * 本次过期是否允许刷新令牌
    * @default
    * ```ts
@@ -23,6 +28,8 @@ export interface RequestRefreshTokenOptions {
   handler: PromiseFn<[context: RequestContext<any, any[]>], void>
 }
 
+const GLOB_REQUEST = {} as BasicRequestHook
+
 let refreshPromiseMap: WeakMap<BasicRequestHook, Promise<any> | null>
 const init = once(() => {
   refreshPromiseMap = new WeakMap()
@@ -36,18 +43,22 @@ export function RequestRefreshToken(initialOptions: RequestRefreshTokenOptions) 
     priority: 1000,
     handler: (ctx, next) => {
       const options = assign(
-        { allow: () => true } as Partial<RequestRefreshTokenOptions>,
+        { singleMode: true, allow: () => true } as Partial<RequestRefreshTokenOptions>,
         initialOptions,
-        pick(ctx.getOptions().refreshToken, ['allow']),
+        pick(ctx.getOptions().refreshToken, ['allow', 'singleMode']),
       )
       const { request, fetcher, getKey, getOptions } = ctx
+      const promiseMapKey = options.singleMode ? GLOB_REQUEST : request
 
       // 允许刷新令牌时更改 fetcher
       if (toValue(options.allow, getKey(), ctx)) {
         ctx.fetcher = async (...args) => {
           // 如果存在正在刷新 token 的请求则等待其结束后再调用
-          if (refreshPromiseMap.has(request))
-            return Promise.resolve(refreshPromiseMap.get(request)).then(() => fetcher(...args))
+          if (refreshPromiseMap.has(promiseMapKey)) {
+            return Promise.resolve(refreshPromiseMap.get(promiseMapKey)).then(() =>
+              fetcher(...args),
+            )
+          }
 
           try {
             // 正常调用 fetcher，之后再通过 dataParser 解析数据，验证请求是否失败
@@ -62,18 +73,18 @@ export function RequestRefreshToken(initialOptions: RequestRefreshTokenOptions) 
             if (!isExpired) return Promise.reject(error)
 
             // 如果是过期导致的则调用注册时传入的 handler 进行处理
-            if (!refreshPromiseMap.has(request))
-              refreshPromiseMap.set(request, options.handler(ctx))
+            if (!refreshPromiseMap.has(promiseMapKey))
+              refreshPromiseMap.set(promiseMapKey, options.handler(ctx))
 
             return (
-              Promise.resolve(refreshPromiseMap.get(request))
+              Promise.resolve(refreshPromiseMap.get(promiseMapKey))
                 // 新的请求出错则抛出新请求的错误
                 .then(() => !ctx.isCanceled() && Promise.resolve(fetcher(...args)))
                 // 异常时抛出初次执行请求时的错误
                 .catch(() => Promise.reject(error))
                 .finally(() => {
                   // 结束后清空 promise
-                  refreshPromiseMap.delete(request)
+                  refreshPromiseMap.delete(promiseMapKey)
                 })
             )
           }
