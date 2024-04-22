@@ -4,6 +4,13 @@
 
 ### Patch Changes
 
+- Updated dependencies [af2ec4d]
+  - @rhao/request-basic-middleware@4.4.0
+
+## null
+
+### Patch Changes
+
 - Updated dependencies [4dc1a08]
   - @rhao/request-basic-middleware@4.3.3
 

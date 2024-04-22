@@ -1,7 +1,7 @@
 {
   "name": "@rhao/request-basic-middleware",
   "type": "module",
-  "version": "4.3.3",
+  "version": "4.4.0",
   "description": "Basic middleware of request.",
   "author": "RayHao <https://github.com/l246804>",
   "license": "MIT",

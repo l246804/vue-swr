@@ -1,5 +1,11 @@
 # @rhao/request-basic-middleware
 
+## 4.4.0
+
+### Minor Changes
+
+- af2ec4d: feat: RequestRefreshToken 支持单例模式
+
 ## 4.3.3
 
 ### Patch Changes
