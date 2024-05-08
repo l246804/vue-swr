@@ -36,9 +36,14 @@ export interface RequestResult<TData, TParams extends unknown[] = unknown[]> {
   cancel: Fn
 
   /**
-   * 手动执行请求
+   * 手动执行请求，永远返回 `state.data`
    */
-  run: PromiseFn<TParams, TData>
+  run: PromiseFn<TParams, TData> & { promise: Promise<TData> }
+
+  /**
+   * 手动执行请求，`error` 时会抛出异常
+   */
+  unsafeRun: PromiseFn<TParams, TData> & { promise: Promise<TData> }
 
   /**
    * 根据最后一次执行的 `params` 重新执行请求

@@ -67,6 +67,7 @@ export function createRequestHook(options?: RequestBasicOptions) {
       getContext: () => assign({}, basicContext),
       cancel,
       run,
+      unsafeRun,
       refresh,
     } as RequestResult<any, any[]>
 
@@ -259,8 +260,22 @@ export function createRequestHook(options?: RequestBasicOptions) {
       if (latestContext) latestContext.cancel()
     }
 
+    run.promise = Promise.resolve(state.data)
     function run(...args) {
-      return basicContext.executor(...args).then(() => state.data)
+      run.promise = basicContext.executor(...args).then(() => state.data)
+      return run.promise
+    }
+
+    unsafeRun.promise = Promise.resolve(state.data)
+    function unsafeRun(...args) {
+      unsafeRun.promise = basicContext.executor(...args).then(() => {
+        const { data, error } = state
+        if (error) {
+          return Promise.reject(error)
+        }
+        return data
+      })
+      return unsafeRun.promise
     }
 
     function refresh() {

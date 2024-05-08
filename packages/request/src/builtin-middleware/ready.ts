@@ -1,4 +1,4 @@
-import type { MaybeFn } from '@rhao/types-base'
+import type { Awaitable, MaybeFn } from '@rhao/types-base'
 import { toValue } from 'nice-fns'
 import type { RequestMiddleware } from '../middleware'
 
@@ -9,9 +9,10 @@ export function RequestReady() {
     setup(ctx) {
       const { hooks, getOptions } = ctx
 
-      hooks.hook('preface', (params, ctx) => {
+      hooks.hook('preface', async (params, ctx) => {
         const { ready = true } = getOptions()
-        if (!toValue(ready, params)) ctx.cancel(true)
+        const value = await toValue(ready, params)
+        if (!value) ctx.cancel(true)
       })
     },
   }
@@ -26,6 +27,6 @@ declare module '@rhao/request' {
      * 执行是否就绪
      * @default true
      */
-    ready?: MaybeFn<boolean, [TParams]>
+    ready?: MaybeFn<Awaitable<boolean>, [TParams]>
   }
 }
