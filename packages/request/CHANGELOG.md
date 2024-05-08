@@ -1,5 +1,11 @@
 # @rhao/request
 
+## 3.4.0
+
+### Minor Changes
+
+- 3de2ab0: feat: 新增 unsafeRun 功能
+
 ## 3.3.5
 
 ### Patch Changes

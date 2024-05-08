@@ -1,7 +1,7 @@
 {
   "name": "@rhao/request",
   "type": "module",
-  "version": "3.3.5",
+  "version": "3.4.0",
   "description": "Data request state management library.",
   "author": "RayHao <https://github.com/l246804>",
   "license": "MIT",
