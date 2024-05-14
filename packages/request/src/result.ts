@@ -46,7 +46,12 @@ export interface RequestResult<TData, TParams extends unknown[] = unknown[]> {
   unsafeRun: PromiseFn<TParams, TData> & { promise: Promise<TData> }
 
   /**
-   * 根据最后一次执行的 `params` 重新执行请求
+   * 根据最后一次执行的 `params` 重新执行请求，永远返回 `state.data`
    */
   refresh: PromiseFn<[], TData>
+
+  /**
+   * 根据最后一次执行的 `params` 重新执行请求，`error` 时会抛出异常
+   */
+  unsafeRefresh: PromiseFn<TParams, TData> & { promise: Promise<TData> }
 }

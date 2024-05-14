@@ -69,6 +69,7 @@ export function createRequestHook(options?: RequestBasicOptions) {
       run,
       unsafeRun,
       refresh,
+      unsafeRefresh,
     } as RequestResult<any, any[]>
 
     // 创建 `pending` 管理器
@@ -280,6 +281,12 @@ export function createRequestHook(options?: RequestBasicOptions) {
 
     function refresh() {
       return run(...state.params)
+    }
+
+    unsafeRefresh.promise = Promise.resolve(state.data)
+    function unsafeRefresh() {
+      unsafeRefresh.promise = unsafeRun(...state.params)
+      return unsafeRefresh.promise
     }
 
     // init middleware
