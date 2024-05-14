@@ -1,5 +1,11 @@
 # @rhao/request
 
+## 3.5.0
+
+### Minor Changes
+
+- 27fdc47: feat: 新增 unsafeRefresh 函数
+
 ## 3.4.0
 
 ### Minor Changes
