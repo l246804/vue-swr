@@ -1,5 +1,11 @@
 # @rhao/request
 
+## 3.5.1
+
+### Patch Changes
+
+- 717e60d: fix: 修复vue组件卸载后导致 context 空指针异常
+
 ## 3.5.0
 
 ### Minor Changes
