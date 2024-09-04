@@ -218,7 +218,7 @@ export function createRequestHook(options?: RequestBasicOptions) {
         disposeTempData()
         await hooks.callHook('finally', context)
 
-        if (context.isLatestExecution()) latestContext = null
+        if (context && context.isLatestExecution()) latestContext = null
         context = null as any
       }
 
@@ -271,9 +271,9 @@ export function createRequestHook(options?: RequestBasicOptions) {
     function unsafeRun(...args) {
       unsafeRun.promise = basicContext.executor(...args).then(() => {
         const { data, error } = state
-        if (error) {
+        if (error)
           return Promise.reject(error)
-        }
+
         return data
       })
       return unsafeRun.promise
